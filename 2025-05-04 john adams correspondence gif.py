@@ -18,9 +18,9 @@ valid_edges = post_madison_df.dropna(subset=["authors", "recipients"])
 G = nx.DiGraph()
 
 # Add edges from authors to recipients
-for _, row in valid_edges.iterrows():
-    sender = row["authors"].strip()
-    recipient = row["recipients"].strip()
+for row in valid_edges.itertuples(index=False):
+    sender = row.authors.strip()
+    recipient = row.recipients.strip()
     if G.has_edge(sender, recipient):
         G[sender][recipient]["weight"] += 1
     else:
@@ -71,11 +71,11 @@ adams_df = df[
 
 # Count correspondents with >= 10 messages
 correspondents = []
-for _, row in adams_df.iterrows():
-    if row["authors"] == "Adams, John":
-        correspondents.append(row["recipients"])
+for row in adams_df.itertuples(index=False):
+    if row.authors == "Adams, John":
+        correspondents.append(row.recipients)
     else:
-        correspondents.append(row["authors"])
+        correspondents.append(row.authors)
 top_corr = {k for k, v in Counter(correspondents).items() if v >= 10}
 
 # Filter to those top correspondents
@@ -89,7 +89,7 @@ msgs_by_date = {d: adams_filtered[adams_filtered["date_str"] == d] for d in date
 
 # Build graph and layout
 G = nx.DiGraph()
-for _, r in adams_filtered.iterrows():
+for r in adams_filtered.itertuples(index=False):
     G.add_edge(r["authors"], r["recipients"])
 layout = nx.shell_layout(
     G, nlist=[["Adams, John"], [n for n in G.nodes if n != "Adams, John"]]
@@ -109,9 +109,9 @@ def draw_frame(i):
 
     # Animate messages of the day
     day_msgs = msgs_by_date[date]
-    for _, row in day_msgs.iterrows():
-        src = layout[row["authors"]]
-        tgt = layout[row["recipients"]]
+    for row in day_msgs.itertuples(index=False):
+        src = layout[row.authors]
+        tgt = layout[row.recipients]
         steps = 10
         for j in range(steps):
             interp = src + (tgt - src) * (j / steps)
